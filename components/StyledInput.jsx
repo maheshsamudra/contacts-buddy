@@ -10,6 +10,7 @@ const StyledInput = ({
   multiline = false,
   label = "",
   style = {},
+  placeholder = "",
 }) => {
   return (
     <View style={{ marginBottom: 10, ...style }}>
@@ -17,7 +18,7 @@ const StyledInput = ({
       <View
         style={{
           backgroundColor: value,
-          borderColor: "#000000",
+          borderColor: "#888",
           borderWidth: 1,
           borderRadius: 6,
         }}
@@ -26,6 +27,7 @@ const StyledInput = ({
           editable
           multiline={multiline}
           numberOfLines={numberOfLines}
+          placeholder={placeholder}
           maxLength={40}
           onChangeText={(text) => onChange(text)}
           value={value}

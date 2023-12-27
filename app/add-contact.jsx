@@ -95,8 +95,6 @@ export default function ModalScreen() {
   };
 
   const handleSave = () => {
-    let newId = null;
-
     if (!contact?.firstName) {
       Alert.alert(
         "Incomplete Contact",
@@ -106,26 +104,19 @@ export default function ModalScreen() {
       return;
     }
 
-    if (params.id) {
-      // delete existing emails and phone numbers
-    } else {
-      // create new contact
-      db.transaction((tx) => {
-        tx.executeSql(
-          "insert into contacts (firstName, lastName, company, notes) values(?,?,?,?)",
-          [contact.firstName, contact.lastName, contact.company, contact.notes],
-          (trans, result) => {
-            newId = result.insertId;
-            console.log(result.insertId);
-          },
-          (e, error) => {
-            console.log("error occurred:", error);
-          },
-        );
-      });
-    }
-
-    console.log("newId", newId);
+    // create new contact
+    db.transaction((tx) => {
+      tx.executeSql(
+        "insert into contacts (firstName, lastName, company, notes) values(?,?,?,?)",
+        [contact.firstName, contact.lastName, contact.company, contact.notes],
+        (trans, result) => {
+          console.log(result.insertId);
+        },
+        (e, error) => {
+          console.log("error occurred:", error);
+        },
+      );
+    });
 
     // insert the emails and phone numbers
   };

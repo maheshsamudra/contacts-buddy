@@ -19,7 +19,27 @@ const openDatabase = async () => {
   //   FileSystem.documentDirectory + "SQLite/contacts.db",
   // );
 
-  return SQLite.openDatabase("contacts.db");
+  const db = SQLite.openDatabase("contacts.db");
+
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists contacts (id integer primary key autoincrement, firstName text, lastName text, favourites integer, company text, notes text)",
+    );
+  });
+
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists phoneNumbers (id integer primary key autoincrement, contactId integer, label text, value text)",
+    );
+  });
+
+  db.transaction((tx) => {
+    tx.executeSql(
+      "create table if not exists emails (id integer primary key autoincrement, contactId integer, label text, value text)",
+    );
+  });
+
+  return db;
 };
 
 export default openDatabase;
