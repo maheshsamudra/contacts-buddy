@@ -4,12 +4,13 @@ import { View } from "../../components/Themed";
 import { StyledText } from "../../components/StyledText";
 import Container from "../../components/Container";
 import { useRouter } from "expo-router";
-import * as SQLite from "expo-sqlite";
 import { useEffect, useState } from "react";
 import openDatabase from "../../db/openDatabase";
 
-export default function TabOneScreen() {
+const HomePage = () => {
   const router = useRouter();
+
+  const [contacts, setContacts] = useState([]);
 
   const [db, setDB] = useState(null);
 
@@ -24,19 +25,12 @@ export default function TabOneScreen() {
 
     db.transaction((tx) => {
       tx.executeSql(
-        "create table if not exists contacts (id integer primary key, firstName TEXT, lastName TEXT, company TEXT, notes TEXT)",
-      );
-    });
-
-    db.transaction((tx) => {
-      tx.executeSql(
-        "select * from contacts",
+        "select * from contacts order by firstName asc",
         [],
-        (trans, result) => {
-          console.log(result);
+        (trans, { rows: { _array: data } }) => {
+          setContacts(data);
         },
         (e, error) => {
-          console.log("error");
           console.log("error occurred:", error);
         },
       );
@@ -45,30 +39,33 @@ export default function TabOneScreen() {
 
   return (
     <Container>
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((item) => (
-        <View key={item} style={{ marginVertical: 22 }}>
+      {contacts.map((item) => (
+        <View
+          key={item.id}
+          style={{
+            paddingVertical: 15,
+            borderBottomWidth: 1,
+            borderBottomColor: "#eee",
+          }}
+        >
           <Pressable
             onPress={() =>
               router.push({
                 pathname: "view-contact",
                 params: {
-                  id: "id",
+                  id: item.id,
                 },
               })
             }
           >
-            <StyledText>Name</StyledText>
+            <StyledText>
+              {item.firstName} {item.lastName}
+            </StyledText>
           </Pressable>
         </View>
       ))}
     </Container>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-});
+export default HomePage;

@@ -4,9 +4,10 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import StyledButton from "../components/StyledButton";
 import Container from "../components/Container";
 import StyledInput from "../components/StyledInput";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Divider from "../components/Divider";
 import { StyledText } from "../components/StyledText";
+import openDatabase from "../db/openDatabase";
 
 export default function ModalScreen() {
   const params = useLocalSearchParams();
@@ -27,6 +28,65 @@ export default function ModalScreen() {
       [key]: value,
     });
   };
+
+  const [db, setDB] = useState(null);
+
+  useEffect(() => {
+    if (!db) {
+      openDatabase().then((db) => setDB(db));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!db) return;
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "select * from contacts where id = ?",
+        [params.id],
+        (trans, { rows: { _array: data } }) => {
+          setContact(data?.[0] || {});
+        },
+        (e, error) => {
+          console.log("error occurred:", error);
+        },
+      );
+    });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "select * from phoneNumbers where contactId = ?",
+        [params.id],
+        (trans, { rows: { _array: data } }) => {
+          if (data && data?.length > 0) {
+            setPhoneNumbers(data);
+          } else {
+            setPhoneNumbers([{ label: "", value: "" }]);
+          }
+        },
+        (e, error) => {
+          console.log("error occurred:", error);
+        },
+      );
+    });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "select * from emails where contactId = ?",
+        [params.id],
+        (trans, { rows: { _array: data } }) => {
+          if (data && data?.length > 0) {
+            setEmails(data);
+          } else {
+            setEmails([{ label: "", value: "" }]);
+          }
+        },
+        (e, error) => {
+          console.log("error occurred:", error);
+        },
+      );
+    });
+  }, [db]);
 
   return (
     <Container>
@@ -204,7 +264,7 @@ export default function ModalScreen() {
         label={"Notes"}
         value={contact?.notes || ""}
         onChange={(value) => setValue("notes", value)}
-        style={{ marginTop: 24, marginBottom: 36 }}
+        style={{ marginTop: 24, marginBottom: 100 }}
       />
     </Container>
   );

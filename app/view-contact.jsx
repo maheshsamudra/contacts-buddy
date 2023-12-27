@@ -5,9 +5,10 @@ import { Feather } from "@expo/vector-icons";
 import { Text, View } from "../components/Themed";
 import { Stack, Tabs, useLocalSearchParams, useRouter } from "expo-router";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Container from "../components/Container";
 import { StyledText } from "../components/StyledText";
+import openDatabase from "../db/openDatabase";
 
 export default function ModalScreen() {
   const params = useLocalSearchParams();
@@ -19,13 +20,79 @@ export default function ModalScreen() {
 
   const [phoneNumbers, setPhoneNumbers] = useState([]);
 
-  console.log(contact);
+  const [db, setDB] = useState(null);
+
+  useEffect(() => {
+    if (!db) {
+      openDatabase().then((db) => setDB(db));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!db) return;
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "select * from contacts where id = ?",
+        [params.id],
+        (trans, { rows: { _array: data } }) => {
+          setContact(data?.[0] || {});
+        },
+        (e, error) => {
+          console.log("error occurred:", error);
+        },
+      );
+    });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "select * from phoneNumbers where contactId = ?",
+        [params.id],
+        (trans, { rows: { _array: data } }) => {
+          setPhoneNumbers(data || []);
+        },
+        (e, error) => {
+          console.log("error occurred:", error);
+        },
+      );
+    });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "select * from emails where contactId = ?",
+        [params.id],
+        (trans, { rows: { _array: data } }) => {
+          setEmails(data || []);
+        },
+        (e, error) => {
+          console.log("error occurred:", error);
+        },
+      );
+    });
+  }, [db]);
 
   const toggleFavourite = async () => {
-    const favourite = !contact?.favourite;
-    setContact({
-      ...contact,
-      favourite: !contact?.favourite,
+    if (!db) return;
+    const favourite = contact?.favourite ? 0 : 1;
+
+    db.transaction((tx) => {
+      tx.executeSql("update contacts set favourite = ? where id = ?", [
+        favourite,
+        params.id,
+      ]);
+    });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "select * from contacts where id = ?",
+        [params.id],
+        (trans, { rows: { _array: data } }) => {
+          setContact(data?.[0] || {});
+        },
+        (e, error) => {
+          console.log("error occurred:", error);
+        },
+      );
     });
   };
 
@@ -80,12 +147,21 @@ export default function ModalScreen() {
             marginTop: 4,
           }}
         >
-          contact?.company
+          {contact?.company}
         </Text>
       )}
 
-      {contact?.notes?.slice("\n").map((text) => (
-        <StyledText key={text}>{text}</StyledText>
+      {contact?.notes?.split("\n").map((text, idx) => (
+        <StyledText
+          key={idx}
+          style={{
+            textAlign: "center",
+            fontSize: 14,
+            marginTop: idx === 0 ? 12 : 4,
+          }}
+        >
+          {text}
+        </StyledText>
       ))}
 
       {phoneNumbers.map((item, idx) => (
