@@ -1,4 +1,4 @@
-import { Platform, Pressable, StyleSheet } from "react-native";
+import { Alert, Platform, Pressable, StyleSheet } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 
@@ -96,12 +96,87 @@ export default function ModalScreen() {
     });
   };
 
+  const handleDelete = () => {
+    Alert.alert("Delete this contact?", "This cannot be undone.", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "OK",
+        onPress: () => {
+          db.transaction((tx) => {
+            tx.executeSql(
+              "delete from phoneNumbers where contactId = ?",
+              [params.id],
+              () => {
+                db.transaction((tx) => {
+                  tx.executeSql(
+                    "delete from emails where contactId = ?",
+                    [params.id],
+                    () => {
+                      db.transaction((tx) => {
+                        tx.executeSql(
+                          "delete from contacts where id = ?",
+                          [params.id],
+                          () => {
+                            router.replace("/");
+                          },
+                          (e, error) => {
+                            console.log("error");
+                            Alert.alert(
+                              "Error Occurred.",
+                              "Please try again.",
+                              [
+                                {
+                                  text: "OK",
+                                  style: "cancel",
+                                },
+                              ],
+                            );
+                          },
+                        );
+                      });
+                    },
+                    (e, error) => {
+                      console.log("error");
+                      Alert.alert("Error Occurred.", "Please try again.", [
+                        {
+                          text: "OK",
+                          style: "cancel",
+                        },
+                      ]);
+                    },
+                  );
+                });
+              },
+              (e, error) => {
+                console.log("error", error);
+                Alert.alert("Error Occurred.", "Please try again.", [
+                  {
+                    text: "OK",
+                    style: "cancel",
+                  },
+                ]);
+              },
+            );
+          });
+        },
+      },
+    ]);
+  };
+
   return (
     <Container>
       <Stack.Screen
         options={{
           headerRight: () => (
             <>
+              <Pressable style={{ marginRight: 16 }} onPress={handleDelete}>
+                {({ pressed }) => (
+                  <AntDesign name="delete" size={24} color="red" />
+                )}
+              </Pressable>
               <Pressable
                 onPress={() => {
                   router.push({

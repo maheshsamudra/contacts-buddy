@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, View } from "react-native";
+import { Alert, Pressable, StyleSheet, View } from "react-native";
 
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import StyledButton from "../components/StyledButton";
 import Container from "../components/Container";
 import StyledInput from "../components/StyledInput";
@@ -12,14 +12,122 @@ import openDatabase from "../db/openDatabase";
 export default function ModalScreen() {
   const params = useLocalSearchParams();
 
+  const [db, setDB] = useState(null);
+
   const [contact, setContact] = useState({});
 
   const [phoneNumbers, setPhoneNumbers] = useState([{ value: "", label: "" }]);
 
   const [emails, setEmails] = useState([{ value: "", label: "" }]);
 
+  const router = useRouter();
+
+  const handleUpdate = () => {
+    if (!contact?.firstName) {
+      Alert.alert(
+        "Incomplete Contact",
+        "First name is required to create a contact.",
+        [{ text: "OK" }],
+      );
+      return;
+    }
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "update contacts set firstName = ?, lastName = ?, company = ?, notes = ? where id = ?",
+        [
+          contact.firstName,
+          contact.lastName,
+          contact.company,
+          contact.notes,
+          params.id,
+        ],
+      );
+    });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "delete from phoneNumbers where contactId = ?",
+        [params.id],
+        () => {
+          // insert the phone numbers
+          const filteredPhoneNumbers = phoneNumbers.filter(
+            (item) => !!item.label && !!item.value,
+          );
+
+          for (let i = 0; i < filteredPhoneNumbers?.length; i++) {
+            db.transaction((tx) => {
+              tx.executeSql(
+                "insert into phoneNumbers contactId, label, value, values(?,?,?)",
+                [
+                  params.id,
+                  filteredPhoneNumbers[i].label,
+                  filteredPhoneNumbers[i].value,
+                ],
+              );
+            });
+          }
+        },
+      );
+    });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "delete from emails where contactId = ?",
+        [params.id],
+        () => {
+          // insert the phone numbers
+          const filteredEmails = emails.filter(
+            (item) => !!item.label && !!item.value,
+          );
+
+          for (let i = 0; i < filteredEmails?.length; i++) {
+            db.transaction((tx) => {
+              tx.executeSql(
+                "insert into emails contactId, label, value, values(?,?,?)",
+                [params.id, filteredEmails[i].label, filteredEmails[i].value],
+              );
+            });
+          }
+        },
+      );
+    });
+  };
+
   const handleSave = () => {
-    console.log("save");
+    let newId = null;
+
+    if (!contact?.firstName) {
+      Alert.alert(
+        "Incomplete Contact",
+        "First name is required to create a contact.",
+        [{ text: "OK" }],
+      );
+      return;
+    }
+
+    if (params.id) {
+      // delete existing emails and phone numbers
+    } else {
+      // create new contact
+      db.transaction((tx) => {
+        tx.executeSql(
+          "insert into contacts (firstName, lastName, company, notes) values(?,?,?,?)",
+          [contact.firstName, contact.lastName, contact.company, contact.notes],
+          (trans, result) => {
+            newId = result.insertId;
+            console.log(result.insertId);
+          },
+          (e, error) => {
+            console.log("error occurred:", error);
+          },
+        );
+      });
+    }
+
+    console.log("newId", newId);
+
+    // insert the emails and phone numbers
   };
 
   const setValue = (key, value) => {
@@ -28,8 +136,6 @@ export default function ModalScreen() {
       [key]: value,
     });
   };
-
-  const [db, setDB] = useState(null);
 
   useEffect(() => {
     if (!db) {
@@ -88,6 +194,34 @@ export default function ModalScreen() {
     });
   }, [db]);
 
+  const handleDelete = () => {
+    Alert.alert("Delete this contact?", "This cannot be undone.", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "OK",
+        onPress: () => {
+          db.transaction((tx) => {
+            tx.executeSql("delete from phoneNumbers where contactId = ?", [
+              params.id,
+            ]);
+          });
+          db.transaction((tx) => {
+            tx.executeSql("delete from emails where contactId = ?", [
+              params.id,
+            ]);
+          });
+          db.transaction((tx) => {
+            tx.executeSql("delete from contacts where id = ?", [params.id]);
+          });
+          router.replace("/");
+        },
+      },
+    ]);
+  };
+
   return (
     <Container>
       <Stack.Screen
@@ -95,7 +229,10 @@ export default function ModalScreen() {
           title: params?.id ? "Update Contact" : "Add Contact",
           headerRight: () => (
             <>
-              <StyledButton onPress={handleSave} title={"Save"} />
+              <StyledButton
+                onPress={params.id ? handleUpdate : handleSave}
+                title={"Save"}
+              />
             </>
           ),
         }}
@@ -266,6 +403,14 @@ export default function ModalScreen() {
         onChange={(value) => setValue("notes", value)}
         style={{ marginTop: 24, marginBottom: 100 }}
       />
+
+      {params.id && (
+        <View
+          style={{ flexDirection: "row", marginBottom: 120, marginTop: -60 }}
+        >
+          <StyledButton title={"Delete"} bg={"red"} onPress={handleDelete} />
+        </View>
+      )}
     </Container>
   );
 }
