@@ -1,9 +1,9 @@
 import * as SQLite from "expo-sqlite";
-import { Asset } from "expo-asset";
-import * as FileSystem from "expo-file-system";
+
+const dbName = "contacts4.db";
 
 const openDatabase = async () => {
-  const database = SQLite.openDatabase("contacts.db");
+  const database = SQLite.openDatabase(dbName);
   database._db.close();
 
   // if (
@@ -19,11 +19,11 @@ const openDatabase = async () => {
   //   FileSystem.documentDirectory + "SQLite/contacts.db",
   // );
 
-  const db = SQLite.openDatabase("contacts.db");
+  const db = SQLite.openDatabase(dbName);
 
   db.transaction((tx) => {
     tx.executeSql(
-      "create table if not exists contacts (id integer primary key autoincrement, firstName text, lastName text, favourites integer, company text, notes text)",
+      "create table if not exists contacts (id integer primary key autoincrement, firstName text, lastName text, favourite integer, company text, notes text)",
     );
   });
 

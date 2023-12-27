@@ -22,7 +22,7 @@ export default function ModalScreen() {
 
   const router = useRouter();
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!contact?.firstName) {
       Alert.alert(
         "Incomplete Contact",
@@ -32,8 +32,16 @@ export default function ModalScreen() {
       return;
     }
 
-    db.transaction((tx) => {
-      tx.executeSql(
+    await db.transaction(async (tx) => {
+      await tx.executeSql("delete from phoneNumbers where contactId = ?", [
+        params.id,
+      ]);
+
+      await tx.executeSql("delete from emails where contactId = ?", [
+        params.id,
+      ]);
+
+      await tx.executeSql(
         "update contacts set firstName = ?, lastName = ?, company = ?, notes = ? where id = ?",
         [
           contact.firstName,
@@ -45,54 +53,10 @@ export default function ModalScreen() {
       );
     });
 
-    db.transaction((tx) => {
-      tx.executeSql(
-        "delete from phoneNumbers where contactId = ?",
-        [params.id],
-        () => {
-          // insert the phone numbers
-          const filteredPhoneNumbers = phoneNumbers.filter(
-            (item) => !!item.label && !!item.value,
-          );
-
-          for (let i = 0; i < filteredPhoneNumbers?.length; i++) {
-            db.transaction((tx) => {
-              tx.executeSql(
-                "insert into phoneNumbers contactId, label, value, values(?,?,?)",
-                [
-                  params.id,
-                  filteredPhoneNumbers[i].label,
-                  filteredPhoneNumbers[i].value,
-                ],
-              );
-            });
-          }
-        },
-      );
-    });
-
-    db.transaction((tx) => {
-      tx.executeSql(
-        "delete from emails where contactId = ?",
-        [params.id],
-        () => {
-          // insert the phone numbers
-          const filteredEmails = emails.filter(
-            (item) => !!item.label && !!item.value,
-          );
-
-          for (let i = 0; i < filteredEmails?.length; i++) {
-            db.transaction((tx) => {
-              tx.executeSql(
-                "insert into emails contactId, label, value, values(?,?,?)",
-                [params.id, filteredEmails[i].label, filteredEmails[i].value],
-              );
-            });
-          }
-        },
-      );
-    });
+    setNewContactId(params.id);
   };
+
+  const [newContactId, setNewContactId] = useState(null);
 
   const handleSave = () => {
     if (!contact?.firstName) {
@@ -110,7 +74,7 @@ export default function ModalScreen() {
         "insert into contacts (firstName, lastName, company, notes) values(?,?,?,?)",
         [contact.firstName, contact.lastName, contact.company, contact.notes],
         (trans, result) => {
-          console.log(result.insertId);
+          setNewContactId(result.insertId);
         },
         (e, error) => {
           console.log("error occurred:", error);
@@ -120,6 +84,48 @@ export default function ModalScreen() {
 
     // insert the emails and phone numbers
   };
+
+  useEffect(() => {
+    if (!newContactId) return;
+
+    const saveItems = async () => {
+      return new Promise(async (resolve) => {
+        // insert the phone numbers
+        const filteredPhoneNumbers = phoneNumbers.filter(
+          (item) => !!item.label && !!item.value,
+        );
+        const filteredEmails = emails.filter(
+          (item) => !!item.label && !!item.value,
+        );
+        await db.transaction(async (tx) => {
+          for (let i = 0; i < filteredPhoneNumbers?.length; i++) {
+            await tx.executeSql(
+              "insert into phoneNumbers (contactId, label, value) values(?,?,?)",
+              [
+                newContactId,
+                filteredPhoneNumbers[i].label,
+                filteredPhoneNumbers[i].value,
+              ],
+              () => null,
+              (_, error) => console.log(error),
+            );
+          }
+
+          for (let i = 0; i < filteredEmails?.length; i++) {
+            await tx.executeSql(
+              "insert into emails (contactId, label, value) values(?,?,?)",
+              [newContactId, filteredEmails[i].label, filteredEmails[i].value],
+            );
+          }
+        });
+        resolve();
+      });
+    };
+
+    saveItems().then(() => {
+      router.replace("/");
+    });
+  }, [newContactId]);
 
   const setValue = (key, value) => {
     setContact({
