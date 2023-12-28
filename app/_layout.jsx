@@ -26,7 +26,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     ...FontAwesome.font,
-    Regular: require("../assets/fonts/Montserrat-Regular.ttf"),
+    Regular: require("../assets/fonts/NotoSans-Regular.ttf"),
+    SemiBold: require("../assets/fonts/NotoSans-SemiBold.ttf"),
+    Bold: require("../assets/fonts/NotoSans-Bold.ttf"),
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -52,7 +54,13 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerTitleStyle: {
+            fontFamily: "SemiBold",
+          },
+        }}
+      >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="add-contact" options={{ title: "Add Contact" }} />
         <Stack.Screen name="view-contact" options={{ title: "" }} />

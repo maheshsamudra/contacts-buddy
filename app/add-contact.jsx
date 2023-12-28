@@ -306,7 +306,7 @@ export default function ModalScreen() {
                 }}
               >
                 <StyledText
-                  style={{ color: "red", textDecorationLine: "underline" }}
+                  style={{ color: "#e74c3c", textDecorationLine: "underline" }}
                 >
                   Remove
                 </StyledText>
@@ -374,7 +374,7 @@ export default function ModalScreen() {
                 }}
               >
                 <StyledText
-                  style={{ color: "red", textDecorationLine: "underline" }}
+                  style={{ color: "#e74c3c", textDecorationLine: "underline" }}
                 >
                   Remove
                 </StyledText>
@@ -405,7 +405,11 @@ export default function ModalScreen() {
         <View
           style={{ flexDirection: "row", marginBottom: 120, marginTop: -60 }}
         >
-          <StyledButton title={"Delete"} bg={"red"} onPress={handleDelete} />
+          <StyledButton
+            title={"Delete"}
+            bg={"#e74c3c"}
+            onPress={handleDelete}
+          />
         </View>
       )}
     </Container>

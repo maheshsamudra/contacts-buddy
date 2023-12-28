@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
 
-const dbName = "contacts4.db";
+const dbName = "contacts6.db";
 
 const openDatabase = async () => {
   const database = SQLite.openDatabase(dbName);

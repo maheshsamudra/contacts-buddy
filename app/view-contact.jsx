@@ -1,4 +1,4 @@
-import { Alert, Platform, Pressable, StyleSheet } from "react-native";
+import { Alert, Platform, Pressable, Share, StyleSheet } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 
@@ -70,6 +70,26 @@ export default function ModalScreen() {
       );
     });
   }, [db]);
+
+  const share = async () => {
+    let message = `Contact: ${contact?.firstName} ${contact?.lastName}`;
+    if (contact?.company) {
+      message += `\nCompany: ${contact.company}`;
+    }
+    for (let i = 0; i < phoneNumbers?.length; i++) {
+      message += `\n${phoneNumbers?.[i].label}: ${phoneNumbers?.[i].value}`;
+    }
+    for (let i = 0; i < emails?.length; i++) {
+      message += `\n${emails?.[i].label}: ${emails?.[i].value}`;
+    }
+    try {
+      await Share.share({
+        message,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const toggleFavourite = async () => {
     if (!db) return;
@@ -172,11 +192,18 @@ export default function ModalScreen() {
         options={{
           headerRight: () => (
             <>
-              <Pressable style={{ marginRight: 16 }} onPress={handleDelete}>
+              <Pressable style={{ marginRight: 32 }} onPress={handleDelete}>
                 {({ pressed }) => (
-                  <AntDesign name="delete" size={24} color="red" />
+                  <AntDesign name="delete" size={24} color="#e74c3c" />
                 )}
               </Pressable>
+
+              <Pressable style={{ marginRight: 16 }} onPress={share}>
+                {({ pressed }) => (
+                  <Feather name="share-2" size={24} color="black" />
+                )}
+              </Pressable>
+
               <Pressable
                 onPress={() => {
                   router.push({
@@ -196,7 +223,7 @@ export default function ModalScreen() {
                   <MaterialIcons
                     name={!!contact?.favourite ? "favorite" : "favorite-border"}
                     size={24}
-                    color={!!contact?.favourite ? "green" : "black"}
+                    color={!!contact?.favourite ? "#1abc9c" : "black"}
                   />
                 )}
               </Pressable>

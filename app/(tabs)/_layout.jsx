@@ -22,16 +22,23 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        headerTitleStyle: {
+          fontFamily: "SemiBold",
+        },
+        tabBarStyle: {
+          paddingTop: 4,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Contacts",
+          tabBarLabelStyle: { fontFamily: "SemiBold", fontSize: 14 },
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="contacts-outline"
-              size={24}
+              size={18}
               color={color}
             />
           ),
@@ -46,7 +53,7 @@ export default function TabLayout() {
               {({ pressed }) => (
                 <AntDesign
                   name="adduser"
-                  size={24}
+                  size={18}
                   color={Colors[colorScheme ?? "light"].text}
                   style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                 />
@@ -59,6 +66,7 @@ export default function TabLayout() {
         name="favourites"
         options={{
           title: "Favourites",
+          tabBarLabelStyle: { fontFamily: "SemiBold", fontSize: 14 },
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="favorite-border" size={24} color={color} />
           ),
