@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
 
-const dbName = "c6.db";
+const dbName = "contacts-db.db";
 
 const openDatabase = async () => {
   // This is to make sure that the DB does not go to read only mode.
