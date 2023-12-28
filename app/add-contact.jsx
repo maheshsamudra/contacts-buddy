@@ -92,7 +92,7 @@ export default function ModalScreen() {
           setNewContactId(result.insertId);
         },
         (e, error) => {
-          console.log("error occurred:", error);
+          console.log("error occurred inserting:", error);
         },
       );
     });
@@ -155,7 +155,7 @@ export default function ModalScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (!db) return;
+      if (!db || !params.id) return;
 
       db.transaction((tx) => {
         tx.executeSql(
