@@ -52,10 +52,10 @@ export default function ModalScreen() {
       await tx.executeSql(
         "update contacts set firstName = ?, lastName = ?, company = ?, notes = ? where id = ?",
         [
-          contact.firstName,
-          contact.lastName,
-          contact.company,
-          contact.notes,
+          contact?.firstName || "",
+          contact?.lastName || "",
+          contact?.company || "",
+          contact?.notes || "",
           params.id,
         ],
         () => {
@@ -82,7 +82,12 @@ export default function ModalScreen() {
     db.transaction((tx) => {
       tx.executeSql(
         "insert into contacts (firstName, lastName, company, notes) values(?,?,?,?)",
-        [contact.firstName, contact.lastName, contact.company, contact.notes],
+        [
+          contact?.firstName || "",
+          contact?.lastName || "",
+          contact?.company || "",
+          contact?.notes || "",
+        ],
         (trans, result) => {
           setNewContactId(result.insertId);
         },
@@ -384,7 +389,10 @@ export default function ModalScreen() {
         label={"Notes"}
         value={contact?.notes || ""}
         onChange={(value) => setValue("notes", value)}
-        style={{ marginTop: 24, marginBottom: 100 }}
+        style={{
+          marginTop: 24,
+          marginBottom: 100,
+        }}
         multiline={true}
         numberOfLines={4}
       />

@@ -31,7 +31,10 @@ const StyledInput = ({
           maxLength={40}
           onChangeText={(text) => onChange(text)}
           value={value}
-          style={{ padding: 10 }}
+          style={{
+            padding: 10,
+            textAlignVertical: multiline ? "top" : "center",
+          }}
           autoCapitalize={autoCapitalize}
         />
       </View>
