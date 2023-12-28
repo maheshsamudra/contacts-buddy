@@ -1,6 +1,6 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Tabs, useRouter } from "expo-router";
-import { Pressable, useColorScheme } from "react-native";
+import { Tabs, useRouter } from "expo-router";
+import { Pressable } from "react-native";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 
@@ -14,14 +14,12 @@ function TabBarIcon(props) {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   const router = useRouter();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: Colors.tint,
         headerTitleStyle: {
           fontFamily: "SemiBold",
         },
@@ -54,7 +52,7 @@ export default function TabLayout() {
                 <AntDesign
                   name="adduser"
                   size={18}
-                  color={Colors[colorScheme ?? "light"].text}
+                  color={Colors.text}
                   style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
                 />
               )}

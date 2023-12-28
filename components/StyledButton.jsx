@@ -1,8 +1,9 @@
 import React from "react";
 import { Button, Pressable } from "react-native";
 import { StyledText } from "./StyledText";
+import Colors from "../constants/Colors";
 
-const StyledButton = ({ onPress, title, bg = "#3498db" }) => {
+const StyledButton = ({ onPress, title, bg = Colors.tint }) => {
   return (
     <Pressable
       onPress={onPress}
