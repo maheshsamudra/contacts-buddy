@@ -276,8 +276,8 @@ export default function ModalScreen() {
 
       {phoneNumbers.map((item, idx) => (
         <TouchableOpacity
-          onPress={() => {
-            Clipboard.setStringAsync(item.value);
+          onPress={async () => {
+            await Clipboard.setStringAsync(item.value);
           }}
           key={idx}
           style={{
@@ -297,8 +297,8 @@ export default function ModalScreen() {
 
       {emails.map((item, idx) => (
         <TouchableOpacity
-          onPress={() => {
-            Clipboard.setStringAsync(item.value);
+          onPress={async () => {
+            await Clipboard.setStringAsync(item.value);
           }}
           key={idx}
           style={{
