@@ -1,43 +1,44 @@
 import * as SQLite from "expo-sqlite";
-// import { Asset } from "expo-asset";
-// import * as FileSystem from "expo-file-system";
 
-const dbName = "db.db";
+const dbName = "c6.db";
 
 const openDatabase = async () => {
+  // This is to make sure that the DB does not go to read only mode.
   const database = SQLite.openDatabase(dbName);
   database._db.close();
-
-  // if (
-  //   !(await FileSystem.getInfoAsync(FileSystem.documentDirectory + "SQLite"))
-  //     .exists
-  // ) {
-  //   await FileSystem.makeDirectoryAsync(
-  //     FileSystem.documentDirectory + "SQLite",
-  //   );
-  // }
-  // await FileSystem.downloadAsync(
-  //   Asset.fromModule(require(`./${dbName}`)).uri,
-  //   FileSystem.documentDirectory + `SQLite/${dbName}`,
-  // );
 
   const db = SQLite.openDatabase(dbName);
 
   db.transaction((tx) => {
     tx.executeSql(
-      "create table if not exists contacts (id integer primary key autoincrement, firstName text, lastName text, favourite integer, company text, notes text)",
+      "create table if not exists contacts (id integer primary key autoincrement, firstName string, lastName string, favourite boolean, company text, notes text)",
+      [],
+      () => null,
+      (_, error) => {
+        console.log(error);
+      },
     );
   });
 
   db.transaction((tx) => {
     tx.executeSql(
-      "create table if not exists phoneNumbers (id integer primary key autoincrement, contactId integer, label text, value text)",
+      "create table if not exists phoneNumbers (id integer primary key autoincrement, contactId integer, label string, value string, foreign key(contactId) references contacts(id))",
+      [],
+      () => null,
+      (_, error) => {
+        console.log(error);
+      },
     );
   });
 
   db.transaction((tx) => {
     tx.executeSql(
-      "create table if not exists emails (id integer primary key autoincrement, contactId integer, label text, value text)",
+      "create table if not exists emails (id integer primary key autoincrement, contactId integer, label string, value string, foreign key(contactId) references contacts(id))",
+      [],
+      () => null,
+      (_, error) => {
+        console.log(error);
+      },
     );
   });
 

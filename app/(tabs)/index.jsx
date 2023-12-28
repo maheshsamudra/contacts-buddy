@@ -24,18 +24,7 @@ const HomePage = (props) => {
     useCallback(() => {
       if (!db) return;
 
-      db.transaction((tx) => {
-        tx.executeSql(
-          "select * from contacts order by firstName asc",
-          [],
-          (trans, { rows: { _array: data } }) => {
-            setContacts(data);
-          },
-          (e, error) => {
-            console.log("error occurred:", error);
-          },
-        );
-      });
+      // database query executes here...
     }, [db]),
   );
 

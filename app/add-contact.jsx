@@ -27,6 +27,8 @@ export default function ModalScreen() {
 
   const router = useRouter();
 
+  const [newContactId, setNewContactId] = useState(null);
+
   const handleUpdate = async () => {
     if (!contact?.firstName) {
       Alert.alert(
@@ -64,11 +66,7 @@ export default function ModalScreen() {
 
     // Updating the new email addresses and phone numbers are commented out to prevent the DB lock.
     //   setNewContactId(params.id);
-
-    // router.replace("/");
   };
-
-  const [newContactId, setNewContactId] = useState(null);
 
   const handleSave = () => {
     if (!contact?.firstName) {
@@ -93,8 +91,6 @@ export default function ModalScreen() {
         },
       );
     });
-
-    // insert the emails and phone numbers
   };
 
   useEffect(() => {

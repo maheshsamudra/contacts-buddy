@@ -22,6 +22,7 @@ import Container from "../components/Container";
 import { StyledText } from "../components/StyledText";
 import openDatabase from "../db/openDatabase";
 import * as Clipboard from "expo-clipboard";
+import StyledButton from "../components/StyledButton";
 
 export default function ModalScreen() {
   const params = useLocalSearchParams();
@@ -326,20 +327,3 @@ export default function ModalScreen() {
     </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-});
