@@ -11,6 +11,7 @@ const StyledInput = ({
   label = "",
   style = {},
   placeholder = "",
+  autoCapitalize = "sentences",
 }) => {
   return (
     <View style={{ marginBottom: 10, ...style }}>
@@ -32,6 +33,7 @@ const StyledInput = ({
           onChangeText={(text) => onChange(text)}
           value={value}
           style={{ padding: 10 }}
+          autoCapitalize={autoCapitalize}
         />
       </View>
     </View>

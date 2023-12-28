@@ -3,12 +3,19 @@ import { Alert, Platform, Pressable, Share, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
 import { Text, View } from "../components/Themed";
-import { Stack, Tabs, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Stack,
+  Tabs,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Container from "../components/Container";
 import { StyledText } from "../components/StyledText";
 import openDatabase from "../db/openDatabase";
+import * as Clipboard from "expo-clipboard";
 
 export default function ModalScreen() {
   const params = useLocalSearchParams();
@@ -28,48 +35,50 @@ export default function ModalScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!db) return;
+  useFocusEffect(
+    useCallback(() => {
+      if (!db) return;
 
-    db.transaction((tx) => {
-      tx.executeSql(
-        "select * from contacts where id = ?",
-        [params.id],
-        (trans, { rows: { _array: data } }) => {
-          setContact(data?.[0] || {});
-        },
-        (e, error) => {
-          console.log("error occurred:", error);
-        },
-      );
-    });
+      db.transaction((tx) => {
+        tx.executeSql(
+          "select * from contacts where id = ?",
+          [params.id],
+          (trans, { rows: { _array: data } }) => {
+            setContact(data?.[0] || {});
+          },
+          (e, error) => {
+            console.log("error occurred:", error);
+          },
+        );
+      });
 
-    db.transaction((tx) => {
-      tx.executeSql(
-        "select * from phoneNumbers where contactId = ?",
-        [params.id],
-        (trans, { rows: { _array: data } }) => {
-          setPhoneNumbers(data || []);
-        },
-        (e, error) => {
-          console.log("error occurred:", error);
-        },
-      );
-    });
+      db.transaction((tx) => {
+        tx.executeSql(
+          "select * from phoneNumbers where contactId = ?",
+          [params.id],
+          (trans, { rows: { _array: data } }) => {
+            setPhoneNumbers(data || []);
+          },
+          (e, error) => {
+            console.log("error occurred:", error);
+          },
+        );
+      });
 
-    db.transaction((tx) => {
-      tx.executeSql(
-        "select * from emails where contactId = ?",
-        [params.id],
-        (trans, { rows: { _array: data } }) => {
-          setEmails(data || []);
-        },
-        (e, error) => {
-          console.log("error occurred:", error);
-        },
-      );
-    });
-  }, [db]);
+      db.transaction((tx) => {
+        tx.executeSql(
+          "select * from emails where contactId = ?",
+          [params.id],
+          (trans, { rows: { _array: data } }) => {
+            setEmails(data || []);
+          },
+          (e, error) => {
+            console.log("error occurred:", error);
+          },
+        );
+      });
+    }, [db, params.id]),
+  );
 
   const share = async () => {
     let message = `Contact: ${contact?.firstName} ${contact?.lastName}`;
@@ -259,7 +268,8 @@ export default function ModalScreen() {
           style={{
             textAlign: "center",
             fontSize: 14,
-            marginTop: idx === 0 ? 12 : 4,
+            marginTop: idx === 0 ? 12 : 0,
+            color: "#555",
           }}
         >
           {text}
@@ -267,7 +277,10 @@ export default function ModalScreen() {
       ))}
 
       {phoneNumbers.map((item, idx) => (
-        <View
+        <Pressable
+          onPress={() => {
+            Clipboard.setStringAsync(item.value);
+          }}
           key={idx}
           style={{
             flexDirection: "row",
@@ -281,11 +294,14 @@ export default function ModalScreen() {
             <StyledText style={{ fontSize: 20 }}>{item.value}</StyledText>
             <StyledText>{item.label}</StyledText>
           </View>
-        </View>
+        </Pressable>
       ))}
 
       {emails.map((item, idx) => (
-        <View
+        <Pressable
+          onPress={() => {
+            Clipboard.setStringAsync(item.value);
+          }}
           key={idx}
           style={{
             flexDirection: "row",
@@ -299,7 +315,7 @@ export default function ModalScreen() {
             <StyledText style={{ fontSize: 20 }}>{item.value}</StyledText>
             <StyledText>{item.label}</StyledText>
           </View>
-        </View>
+        </Pressable>
       ))}
     </Container>
   );

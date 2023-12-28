@@ -44,12 +44,23 @@ const HomePage = (props) => {
 
   return (
     <Container>
-      {contacts.length > 0 && (
+      {contacts.length > 0 ? (
         <StyledInput
           placeholder={"Type here to search"}
           value={searchString}
           onChange={setSearchString}
         />
+      ) : (
+        <>
+          <StyledText
+            style={{ fontSize: 18, marginBottom: 8, textAlign: "center" }}
+          >
+            Welcome to Contacts Buddy.
+          </StyledText>
+          <StyledText style={{ textAlign: "center" }}>
+            Tap on the "Add" icon on the top right corner to get started!
+          </StyledText>
+        </>
       )}
       {contacts
         ?.filter((c) => {

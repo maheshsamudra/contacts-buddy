@@ -1,10 +1,15 @@
 import { Alert, Pressable, StyleSheet, View } from "react-native";
 
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
 import StyledButton from "../components/StyledButton";
 import Container from "../components/Container";
 import StyledInput from "../components/StyledInput";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Divider from "../components/Divider";
 import { StyledText } from "../components/StyledText";
 import openDatabase from "../db/openDatabase";
@@ -33,13 +38,14 @@ export default function ModalScreen() {
     }
 
     await db.transaction(async (tx) => {
-      await tx.executeSql("delete from phoneNumbers where contactId = ?", [
-        params.id,
-      ]);
-
-      await tx.executeSql("delete from emails where contactId = ?", [
-        params.id,
-      ]);
+      // Deleting the existing phone numbers and email addresses are commented out to prevent the DB lock
+      // await tx.executeSql("delete from phoneNumbers where contactId = ?", [
+      //   params.id,
+      // ]);
+      //
+      // await tx.executeSql("delete from emails where contactId = ?", [
+      //   params.id,
+      // ]);
 
       await tx.executeSql(
         "update contacts set firstName = ?, lastName = ?, company = ?, notes = ? where id = ?",
@@ -50,10 +56,16 @@ export default function ModalScreen() {
           contact.notes,
           params.id,
         ],
+        () => {
+          router.replace("/");
+        },
       );
     });
 
-    setNewContactId(params.id);
+    // Updating the new email addresses and phone numbers are commented out to prevent the DB lock.
+    //   setNewContactId(params.id);
+
+    // router.replace("/");
   };
 
   const [newContactId, setNewContactId] = useState(null);
@@ -140,84 +152,58 @@ export default function ModalScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    if (!db) return;
+  useFocusEffect(
+    useCallback(() => {
+      if (!db) return;
 
-    db.transaction((tx) => {
-      tx.executeSql(
-        "select * from contacts where id = ?",
-        [params.id],
-        (trans, { rows: { _array: data } }) => {
-          setContact(data?.[0] || {});
-        },
-        (e, error) => {
-          console.log("error occurred:", error);
-        },
-      );
-    });
+      db.transaction((tx) => {
+        tx.executeSql(
+          "select * from contacts where id = ?",
+          [params.id],
+          (trans, { rows: { _array: data } }) => {
+            setContact(data?.[0] || {});
+          },
+          (e, error) => {
+            console.log("error occurred:", error);
+          },
+        );
+      });
 
-    db.transaction((tx) => {
-      tx.executeSql(
-        "select * from phoneNumbers where contactId = ?",
-        [params.id],
-        (trans, { rows: { _array: data } }) => {
-          if (data && data?.length > 0) {
-            setPhoneNumbers(data);
-          } else {
-            setPhoneNumbers([{ label: "", value: "" }]);
-          }
-        },
-        (e, error) => {
-          console.log("error occurred:", error);
-        },
-      );
-    });
+      db.transaction((tx) => {
+        tx.executeSql(
+          "select * from phoneNumbers where contactId = ?",
+          [params.id],
+          (trans, { rows: { _array: data } }) => {
+            if (data && data?.length > 0) {
+              setPhoneNumbers(data);
+            } else {
+              setPhoneNumbers([{ label: "", value: "" }]);
+            }
+          },
+          (e, error) => {
+            console.log("error occurred:", error);
+          },
+        );
+      });
 
-    db.transaction((tx) => {
-      tx.executeSql(
-        "select * from emails where contactId = ?",
-        [params.id],
-        (trans, { rows: { _array: data } }) => {
-          if (data && data?.length > 0) {
-            setEmails(data);
-          } else {
-            setEmails([{ label: "", value: "" }]);
-          }
-        },
-        (e, error) => {
-          console.log("error occurred:", error);
-        },
-      );
-    });
-  }, [db]);
-
-  const handleDelete = () => {
-    Alert.alert("Delete this contact?", "This cannot be undone.", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "OK",
-        onPress: () => {
-          db.transaction((tx) => {
-            tx.executeSql("delete from phoneNumbers where contactId = ?", [
-              params.id,
-            ]);
-          });
-          db.transaction((tx) => {
-            tx.executeSql("delete from emails where contactId = ?", [
-              params.id,
-            ]);
-          });
-          db.transaction((tx) => {
-            tx.executeSql("delete from contacts where id = ?", [params.id]);
-          });
-          router.replace("/");
-        },
-      },
-    ]);
-  };
+      db.transaction((tx) => {
+        tx.executeSql(
+          "select * from emails where contactId = ?",
+          [params.id],
+          (trans, { rows: { _array: data } }) => {
+            if (data && data?.length > 0) {
+              setEmails(data);
+            } else {
+              setEmails([{ label: "", value: "" }]);
+            }
+          },
+          (e, error) => {
+            console.log("error occurred:", error);
+          },
+        );
+      });
+    }, [db, params.id]),
+  );
 
   return (
     <Container>
@@ -228,7 +214,7 @@ export default function ModalScreen() {
             <>
               <StyledButton
                 onPress={params.id ? handleUpdate : handleSave}
-                title={"Save"}
+                title={params.id ? "Update" : "Save"}
               />
             </>
           ),
@@ -238,16 +224,19 @@ export default function ModalScreen() {
         label={"First Name"}
         value={contact?.firstName || ""}
         onChange={(value) => setValue("firstName", value)}
+        autoCapitalize={"words"}
       />
       <StyledInput
         label={"Last Name"}
         value={contact?.lastName || ""}
         onChange={(value) => setValue("lastName", value)}
+        autoCapitalize={"words"}
       />
       <StyledInput
         label={"Company"}
         value={contact?.company || ""}
         onChange={(value) => setValue("company", value)}
+        autoCapitalize={"words"}
       />
 
       <Divider margin={20} />
@@ -352,6 +341,7 @@ export default function ModalScreen() {
           <StyledInput
             label={"Email Address"}
             value={emails?.[idx]?.value || ""}
+            autoCapitalize={"none"}
             onChange={(value) => {
               setEmails(
                 emails.map((item, index) => {
@@ -399,19 +389,9 @@ export default function ModalScreen() {
         value={contact?.notes || ""}
         onChange={(value) => setValue("notes", value)}
         style={{ marginTop: 24, marginBottom: 100 }}
+        multiline={true}
+        numberOfLines={4}
       />
-
-      {params.id && (
-        <View
-          style={{ flexDirection: "row", marginBottom: 120, marginTop: -60 }}
-        >
-          <StyledButton
-            title={"Delete"}
-            bg={"#e74c3c"}
-            onPress={handleDelete}
-          />
-        </View>
-      )}
     </Container>
   );
 }

@@ -1,6 +1,8 @@
 import * as SQLite from "expo-sqlite";
+// import { Asset } from "expo-asset";
+// import * as FileSystem from "expo-file-system";
 
-const dbName = "contacts6.db";
+const dbName = "contacts15.db";
 
 const openDatabase = async () => {
   const database = SQLite.openDatabase(dbName);
@@ -15,8 +17,8 @@ const openDatabase = async () => {
   //   );
   // }
   // await FileSystem.downloadAsync(
-  //   Asset.fromModule(require("./contacts.db")).uri,
-  //   FileSystem.documentDirectory + "SQLite/contacts.db",
+  //   Asset.fromModule(require(`./${dbName}`)).uri,
+  //   FileSystem.documentDirectory + `SQLite/${dbName}`,
   // );
 
   const db = SQLite.openDatabase(dbName);
