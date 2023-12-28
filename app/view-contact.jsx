@@ -1,11 +1,17 @@
-import { Alert, Platform, Pressable, Share, StyleSheet } from "react-native";
+import {
+  Alert,
+  Platform,
+  Pressable,
+  Share,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 
-import { Text, View } from "../components/Themed";
 import {
   Stack,
-  Tabs,
   useFocusEffect,
   useLocalSearchParams,
   useRouter,
@@ -240,18 +246,18 @@ export default function ModalScreen() {
           ),
         }}
       />
-      <Text
+      <StyledText
         style={{
           textAlign: "center",
-          fontWeight: "bold",
           fontSize: 20,
+          fontFamily: "SemiBold",
         }}
       >
         {contact?.firstName} {contact?.lastName}
-      </Text>
+      </StyledText>
 
       {contact?.company && (
-        <Text
+        <StyledText
           style={{
             textAlign: "center",
             fontSize: 16,
@@ -259,7 +265,7 @@ export default function ModalScreen() {
           }}
         >
           {contact?.company}
-        </Text>
+        </StyledText>
       )}
 
       {contact?.notes?.split("\n").map((text, idx) => (
@@ -277,7 +283,7 @@ export default function ModalScreen() {
       ))}
 
       {phoneNumbers.map((item, idx) => (
-        <Pressable
+        <TouchableOpacity
           onPress={() => {
             Clipboard.setStringAsync(item.value);
           }}
@@ -294,11 +300,11 @@ export default function ModalScreen() {
             <StyledText style={{ fontSize: 20 }}>{item.value}</StyledText>
             <StyledText>{item.label}</StyledText>
           </View>
-        </Pressable>
+        </TouchableOpacity>
       ))}
 
       {emails.map((item, idx) => (
-        <Pressable
+        <TouchableOpacity
           onPress={() => {
             Clipboard.setStringAsync(item.value);
           }}
@@ -315,7 +321,7 @@ export default function ModalScreen() {
             <StyledText style={{ fontSize: 20 }}>{item.value}</StyledText>
             <StyledText>{item.label}</StyledText>
           </View>
-        </Pressable>
+        </TouchableOpacity>
       ))}
     </Container>
   );

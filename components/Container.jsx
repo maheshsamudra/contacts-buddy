@@ -1,10 +1,9 @@
 import React from "react";
-import { View } from "./Themed";
-import { ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 
 const Container = ({ children }) => {
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       <ScrollView>
         <View style={{ marginHorizontal: 18, paddingTop: 24 }}>{children}</View>
       </ScrollView>

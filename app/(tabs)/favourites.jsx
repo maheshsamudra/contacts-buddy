@@ -1,6 +1,5 @@
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { Text, View } from "../../components/Themed";
 import { useCallback, useEffect, useState } from "react";
 import openDatabase from "../../db/openDatabase";
 import { useFocusEffect, useRouter } from "expo-router";

@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "./Themed";
+import { View } from "react-native";
 
 const Divider = ({ margin = 10 }) => {
   return (

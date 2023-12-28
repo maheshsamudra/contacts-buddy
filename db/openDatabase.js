@@ -2,7 +2,7 @@ import * as SQLite from "expo-sqlite";
 // import { Asset } from "expo-asset";
 // import * as FileSystem from "expo-file-system";
 
-const dbName = "contacts15.db";
+const dbName = "db.db";
 
 const openDatabase = async () => {
   const database = SQLite.openDatabase(dbName);

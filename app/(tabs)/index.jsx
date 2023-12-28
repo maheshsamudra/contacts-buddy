@@ -1,6 +1,5 @@
-import { Pressable, ScrollView, StyleSheet } from "react-native";
+import { Pressable, View } from "react-native";
 
-import { View } from "../../components/Themed";
 import { StyledText } from "../../components/StyledText";
 import Container from "../../components/Container";
 import { useFocusEffect, useRouter } from "expo-router";

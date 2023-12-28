@@ -1,6 +1,5 @@
 import React from "react";
-import { TextInput } from "react-native";
-import { View } from "./Themed";
+import { TextInput, View } from "react-native";
 import { StyledText } from "./StyledText";
 
 const StyledInput = ({
