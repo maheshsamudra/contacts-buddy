@@ -1,12 +1,4 @@
-import {
-  Alert,
-  Platform,
-  Pressable,
-  Share,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Pressable, Share, TouchableOpacity, View } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 
@@ -22,7 +14,6 @@ import Container from "../components/Container";
 import { StyledText } from "../components/StyledText";
 import openDatabase from "../db/openDatabase";
 import * as Clipboard from "expo-clipboard";
-import StyledButton from "../components/StyledButton";
 
 export default function ModalScreen() {
   const params = useLocalSearchParams();
